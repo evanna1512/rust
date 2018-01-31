@@ -535,6 +535,7 @@ for ::mir::interpret::EvalError<'gcx> {
             TypeckError |
             DerefFunctionPointer |
             ExecuteMemory |
+            ReferencedConstant |
             OverflowingMath => {}
             MachineError(ref err) => err.hash_stable(hcx, hasher),
             FunctionPointerTyMismatch(a, b) => {
