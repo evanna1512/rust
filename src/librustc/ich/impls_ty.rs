@@ -444,6 +444,11 @@ impl_stable_hash_for!(struct ::middle::const_val::ConstEvalErr<'tcx> {
     kind
 });
 
+impl_stable_hash_for!(struct ::middle::const_val::FrameInfo {
+    span,
+    location
+});
+
 impl<'a, 'gcx> HashStable<StableHashingContext<'a>>
 for ::middle::const_val::ErrKind<'gcx> {
     fn hash_stable<W: StableHasherResult>(&self,
@@ -472,7 +477,10 @@ for ::middle::const_val::ErrKind<'gcx> {
             LayoutError(ref layout_error) => {
                 layout_error.hash_stable(hcx, hasher);
             }
-            Miri(ref err) => err.hash_stable(hcx, hasher),
+            Miri(ref err, ref trace) => {
+                err.hash_stable(hcx, hasher);
+                trace.hash_stable(hcx, hasher);
+            },
         }
     }
 }
@@ -493,9 +501,9 @@ for ::mir::interpret::EvalError<'gcx> {
                                           hasher: &mut StableHasher<W>) {
         use mir::interpret::EvalErrorKind::*;
 
-        mem::discriminant(&*self.kind).hash_stable(hcx, hasher);
+        mem::discriminant(&self.kind).hash_stable(hcx, hasher);
 
-        match *self.kind {
+        match self.kind {
             DanglingPointerDeref |
             DoubleFree |
             InvalidMemoryAccess |
